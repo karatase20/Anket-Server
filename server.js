@@ -7,7 +7,8 @@ const { Low } = require('lowdb');
 const { JSONFile } = require('lowdb/node');
 
 const app = express();
-const PORT = 3000;
+// Render/Hosting ortamı PORT değişkeni tanımlarsa onu kullan, yoksa yerel (local) olarak 3000 kullan.
+const PORT = process.env.PORT || 3000;
 
 // Varsayılan (Başlangıç) Veri Seti (lowdb hatasını önler)
 const DEFAULT_DATA = {
