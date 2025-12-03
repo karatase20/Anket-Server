@@ -3,62 +3,866 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>!Risk Anketi Görsel Puanlama!</title>
+    <title>Risk Değerlendirme Anketi</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .survey-container { max-width: 800px; margin: 50px auto; }
-        .image-container { display: flex; justify-content: space-around; margin-bottom: 30px; }
-        .image-item { border: 1px solid #ccc; padding: 10px; border-radius: 8px; }
-        .image-item img { width: 150px; height: 150px; object-fit: cover; cursor: pointer; border: 3px solid transparent; }
-        .image-item.selected-1 img { border-color: gold; } /* 3 Puan */
-        .image-item.selected-2 img { border-color: silver; } /* 1 Puan */
-        .button-container { margin-top: 20px; }
-        .results-container { margin-top: 40px; padding: 20px; border: 2px dashed #007bff; display: none; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .rules {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .rules h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rules h3::before {
+            content: "📋";
+        }
+        
+        .rule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        
+        .rule-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rule-item::before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .status-bar {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .status-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .status-value {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .images-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .image-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #e0e0e0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .image-card.selected-gold {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, #fff9db, #fff3bf);
+        }
+        
+        .image-card.selected-silver {
+            border-color: #C0C0C0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        
+        .image-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-info {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .image-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .vote-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .vote-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 120px;
+        }
+        
+        .vote-gold {
+            background: linear-gradient(135deg, #FFD700, #FFC107);
+            color: #333;
+        }
+        
+        .vote-silver {
+            background: linear-gradient(135deg, #C0C0C0, #9e9e9e);
+            color: white;
+        }
+        
+        .vote-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+        
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .submit-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        #submit-btn {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        #submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        #submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .results-container {
+            margin-top: 40px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            border: 2px dashed #3498db;
+            display: none;
+        }
+        
+        .results-container h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+        
+        .results-container h2::before {
+            content: "📊";
+            margin-right: 10px;
+        }
+        
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .score-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .score-card h3 {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        #results-message {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .real-time-badge {
+            background: #27ae60;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+        
+        .real-time-badge::before {
+            content: "🔄";
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .images-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .vote-buttons {
+                flex-direction: column;
+            }
+            
+            .vote-btn {
+                max-width: 100%;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .status-item {
+                min-width: 100%;
+            }
+        }
+        
+        .badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .selected-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .selected-gold .selected-badge {
+            background: #FFD700;
+            content: "3 PUAN";
+        }
+        
+        .selected-silver .selected-badge {
+            background: #C0C0C0;
+            content: "1 PUAN";
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-
-    <div class="survey-container">
-        <h1>Anket Görselleri </h1>
-        <p>Lütfen **3 Puanlık** (birincil tercih) ve **1 Puanlık** (ikincil tercih) olmak üzere iki farklı görsel seçin.</p>
-        <p>Kalan Oy Hakkı: <span id="votes-left">2</span></p>
-
-        <div class="image-container">
-            <div class="image-item" data-image-id="1">
-                <img src="gorsel1.jpg" alt="Görsel 1" onclick="selectImage(1)">
-                <p>Görsel 1</p>
-                <button onclick="addVote(1, 3)" id="btn-1-3">3 Puan Ver</button>
-                <button onclick="addVote(1, 1)" id="btn-1-1">1 Puan Ver</button>
-            </div>
-
-            <div class="image-item" data-image-id="2">
-                <img src="gorsel2.jpg" alt="Görsel 2" onclick="selectImage(2)">
-                <p>Görsel 2</p>
-                <button onclick="addVote(2, 3)" id="btn-2-3">3 Puan Ver</button>
-                <button onclick="addVote(2, 1)" id="btn-2-1">1 Puan Ver</button>
-            </div>
-
-            <div class="image-item" data-image-id="3">
-                <img src="gorsel3.jpg" alt="Görsel 3" onclick="selectImage(3)">
-                <p>Görsel 3</p>
-                <button onclick="addVote(3, 3)" id="btn-3-3">3 Puan Ver</button>
-                <button onclick="addVote(3, 1)" id="btn-3-1">1 Puan Ver</button>
+    <div class="container">
+        <header>
+            <h1>🏆 Risk Değerlendirme Anketi</h1>
+            <p class="subtitle">Görselleri puanlayın, geleceğe yön verin</p>
+        </header>
+        
+        <div class="rules">
+            <h3>Anket Kuralları</h3>
+            <div class="rule-list">
+                <div class="rule-item">Her katılımcı <strong>2 oy</strong> kullanacak</div>
+                <div class="rule-item">Birincil tercih <strong>3 PUAN</strong> değerinde</div>
+                <div class="rule-item">İkincil tercih <strong>1 PUAN</strong> değerinde</div>
+                <div class="rule-item">Aynı görsele çift oy <strong>verilemez</strong></div>
+                <div class="rule-item">Toplam <strong>3 katılımcı</strong> oy kullanacak</div>
+                <div class="rule-item">Sonuçlar <strong>gerçek zamanlı</strong> güncellenir</div>
             </div>
         </div>
-
-        <button onclick="submitVote()" id="submit-btn" disabled>Oyumu Gönder</button>
-
-        <div id="results-message" style="margin-top: 20px; color: green;"></div>
-        <div id="user-count" style="margin-top: 10px; color: blue;">Kalan Kullanıcı: 3</div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <span>Kalan Oy Hakkınız</span>
+                <span class="status-value" id="votes-left">2</span>
+            </div>
+            <div class="status-item">
+                <span>Kalan Katılımcı</span>
+                <span class="status-value" id="remaining-users">3</span>
+            </div>
+            <div class="status-item">
+                <span>Anket Durumu</span>
+                <span class="status-value" id="survey-status">Aktif</span>
+            </div>
+        </div>
+        
+        <div class="images-container">
+            <!-- Görsel 1 -->
+            <div class="image-card" data-image-id="1">
+                <div class="selected-badge" style="display: none;">SEÇİLDİ</div>
+                <img src="gorsel1.jpg" alt="Risk Senaryosu 1" id="img-1">
+                <div class="image-info">
+                    <h3>Görsel 1</h3>
+                    <div class="vote-buttons">
+                        <button class="vote-btn vote-gold" id="btn-1-3" data-image="1" data-points="3">🥇 3 Puan</button>
+                        <button class="vote-btn vote-silver" id="btn-1-1" data-image="1" data-points="1">🥈 1 Puan</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Görsel 2 -->
+            <div class="image-card" data-image-id="2">
+                <div class="selected-badge" style="display: none;">SEÇİLDİ</div>
+                <img src="gorsel2.jpg" alt="Risk Senaryosu 2" id="img-2">
+                <div class="image-info">
+                    <h3>Görsel 2</h3>
+                    <div class="vote-buttons">
+                        <button class="vote-btn vote-gold" id="btn-2-3" data-image="2" data-points="3">🥇 3 Puan</button>
+                        <button class="vote-btn vote-silver" id="btn-2-1" data-image="2" data-points="1">🥈 1 Puan</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Görsel 3 -->
+            <div class="image-card" data-image-id="3">
+                <div class="selected-badge" style="display: none;">SEÇİLDİ</div>
+                <img src="gorsel3.jpg" alt="Risk Senaryosu 3" id="img-3">
+                <div class="image-info">
+                    <h3>Görsel 3</h3>
+                    <div class="vote-buttons">
+                        <button class="vote-btn vote-gold" id="btn-3-3" data-image="3" data-points="3">🥇 3 Puan</button>
+                        <button class="vote-btn vote-silver" id="btn-3-1" data-image="3" data-points="1">🥈 1 Puan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="submit-container">
+            <button id="submit-btn" disabled>
+                📨 OYUMU GÖNDER
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loader"></div>
+            <p>Oy gönderiliyor...</p>
+        </div>
+        
+        <div id="results-message">
+            <!-- Sonuç mesajları burada görünecek -->
+        </div>
+        
         <div id="total-results" class="results-container">
-            <h2>Toplam Anket Sonuçları</h2>
-            <p>Görsel 1: <span id="score-1">0</span> Puan</p>
-            <p>Görsel 2: <span id="score-2">0</span> Puan</p>
-            <p>Görsel 3: <span id="score-3">0</span> Puan</p>
+            <h2>📊 CANLI ANKET SONUÇLARI</h2>
+            <div class="scores-grid">
+                <div class="score-card">
+                    <h3>Görsel 1</h3>
+                    <div class="score-value" id="score-1">0</div>
+                    <p>Toplam Puan</p>
+                </div>
+                <div class="score-card">
+                    <h3>Görsel 2</h3>
+                    <div class="score-value" id="score-2">0</div>
+                    <p>Toplam Puan</p>
+                </div>
+                <div class="score-card">
+                    <h3>Görsel 3</h3>
+                    <div class="score-value" id="score-3">0</div>
+                    <p>Toplam Puan</p>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 20px; color: #7f8c8d;">
+                <span class="real-time-badge"></span> Sonuçlar otomatik olarak güncellenir
+            </p>
         </div>
+        
+        <footer>
+            <p>Ascan Alüminyum Risk Değerlendirme Anketi</p>
+            <p><small>Bu anket 3 katılımcı ile sınırlıdır. Sonuçlar gerçek zamanlı olarak paylaşılır.</small></p>
+        </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+    // 📌 ANKET SİSTEMİ - TAM KOD
+    console.log('✅ Anket sistemi başlatılıyor...');
+    
+    // API URL'si (sunucu adresi)
+    const API_URL = window.location.origin;
+    
+    // Mevcut kullanıcının oyları
+    let myVotes = {
+        vote3: null, // 3 puan verdiği görsel ID
+        vote1: null  // 1 puan verdiği görsel ID
+    };
+    
+    // Sayfa yüklendiğinde
+    window.onload = async function() {
+        console.log('📄 Sayfa yüklendi, anket hazırlanıyor...');
+        await updateSurveyStatus();
+        setupEventListeners();
+        
+        // Her 5 saniyede bir anket durumunu güncelle
+        setInterval(updateSurveyStatus, 5000);
+        
+        console.log('🚀 Anket sistemi hazır!');
+    };
+    
+    // Event listener'ları kur
+    function setupEventListeners() {
+        console.log('🔧 Buton eventleri ayarlanıyor...');
+        
+        // Tüm oy butonlarına click eventi ekle
+        document.querySelectorAll('.vote-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const imageId = parseInt(this.getAttribute('data-image'));
+                const points = parseInt(this.getAttribute('data-points'));
+                addVote(imageId, points);
+            });
+        });
+        
+        // Gönder butonu
+        document.getElementById('submit-btn').addEventListener('click', submitVote);
+        
+        // Görsellere tıklama (isteğe bağlı)
+        document.querySelectorAll('.image-card img').forEach(img => {
+            img.addEventListener('click', function() {
+                const card = this.closest('.image-card');
+                const imageId = parseInt(card.getAttribute('data-image-id'));
+                const isSelectedGold = card.classList.contains('selected-gold');
+                const isSelectedSilver = card.classList.contains('selected-silver');
+                
+                if (!isSelectedGold && !isSelectedSilver) {
+                    if (confirm(`Görsel ${imageId}'i kaç puan vermek istersiniz?\n\n"Tamam" = 3 Puan\n"İptal" = 1 Puan`)) {
+                        addVote(imageId, 3);
+                    } else {
+                        addVote(imageId, 1);
+                    }
+                }
+            });
+        });
+    }
+    
+    // Oy ekleme fonksiyonu
+    function addVote(imageId, points) {
+        console.log(`🎯 Oy ekleniyor: Görsel ${imageId}, ${points} Puan`);
+        
+        // Aynı puan türünü daha önce kullandı mı?
+        if (points === 3 && myVotes.vote3 !== null) {
+            alert('❌ 3 puanlık oyunuzu zaten kullandınız!');
+            return;
+        }
+        
+        if (points === 1 && myVotes.vote1 !== null) {
+            alert('❌ 1 puanlık oyunuzu zaten kullandınız!');
+            return;
+        }
+        
+        // Aynı görsele zaten oy verdi mi?
+        if ((points === 3 && myVotes.vote1 === imageId) || 
+            (points === 1 && myVotes.vote3 === imageId)) {
+            alert('❌ Aynı görsele hem 3 hem 1 puan veremezsiniz!');
+            return;
+        }
+        
+        // Oy kaydet
+        if (points === 3) {
+            myVotes.vote3 = imageId;
+        } else {
+            myVotes.vote1 = imageId;
+        }
+        
+        // Görseli işaretle
+        updateImageSelection(imageId, points);
+        
+        // Kalan oy hakkını güncelle
+        updateRemainingVotes();
+        
+        // Gönder butonunu kontrol et
+        checkSubmitButton();
+        
+        console.log('✅ Oy eklendi:', myVotes);
+    }
+    
+    // Görsel seçimini güncelle
+    function updateImageSelection(imageId, points) {
+        const card = document.querySelector(`[data-image-id="${imageId}"]`);
+        const badge = card.querySelector('.selected-badge');
+        
+        // Önceki seçimleri temizle (aynı görselde)
+        card.classList.remove('selected-gold', 'selected-silver');
+        
+        // Yeni seçimi ekle
+        if (points === 3) {
+            card.classList.add('selected-gold');
+            badge.textContent = '3 PUAN';
+            badge.style.display = 'block';
+            badge.style.background = '#FFD700';
+        } else {
+            card.classList.add('selected-silver');
+            badge.textContent = '1 PUAN';
+            badge.style.display = 'block';
+            badge.style.background = '#C0C0C0';
+        }
+    }
+    
+    // Kalan oy hakkını güncelle
+    function updateRemainingVotes() {
+        const votesLeft = (myVotes.vote3 === null ? 1 : 0) + (myVotes.vote1 === null ? 1 : 0);
+        document.getElementById('votes-left').textContent = votesLeft;
+    }
+    
+    // Gönder butonunu kontrol et
+    function checkSubmitButton() {
+        const submitBtn = document.getElementById('submit-btn');
+        if (myVotes.vote3 !== null && myVotes.vote1 !== null) {
+            submitBtn.disabled = false;
+            console.log('✅ Gönder butonu aktif edildi');
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+    
+    // Sunucudan anket durumunu güncelle
+    async function updateSurveyStatus() {
+        try {
+            console.log('🔄 Anket durumu güncelleniyor...');
+            
+            // Bu örnekte sunucu olmadığı için local storage kullanıyoruz
+            // Gerçek uygulamada: const response = await fetch(`${API_URL}/api/survey`);
+            
+            // Simüle edilmiş sunucu yanıtı
+            const mockData = {
+                totalScores: {
+                    "1": localStorage.getItem('score_1') ? parseInt(localStorage.getItem('score_1')) : 0,
+                    "2": localStorage.getItem('score_2') ? parseInt(localStorage.getItem('score_2')) : 0,
+                    "3": localStorage.getItem('score_3') ? parseInt(localStorage.getItem('score_3')) : 0
+                },
+                remainingUsers: localStorage.getItem('remaining_users') ? 
+                    parseInt(localStorage.getItem('remaining_users')) : 3,
+                surveyActive: localStorage.getItem('survey_active') !== 'false'
+            };
+            
+            // Puanları göster
+            document.getElementById('score-1').textContent = mockData.totalScores["1"];
+            document.getElementById('score-2').textContent = mockData.totalScores["2"];
+            document.getElementById('score-3').textContent = mockData.totalScores["3"];
+            
+            // Kalan katılımcı
+            document.getElementById('remaining-users').textContent = mockData.remainingUsers;
+            
+            // Anket durumu
+            const statusElement = document.getElementById('survey-status');
+            if (mockData.surveyActive) {
+                statusElement.textContent = "Aktif";
+                statusElement.style.color = "#27ae60";
+            } else {
+                statusElement.textContent = "Bitti";
+                statusElement.style.color = "#e74c3c";
+            }
+            
+            // Eğer anket bittiyse
+            if (!mockData.surveyActive || mockData.remainingUsers <= 0) {
+                endSurvey(mockData.totalScores);
+            }
+            
+        } catch (error) {
+            console.error('❌ Anket durumu güncellenirken hata:', error);
+            document.getElementById('survey-status').textContent = "Hata";
+            document.getElementById('survey-status').style.color = "#e74c3c";
+        }
+    }
+    
+    // Oy gönderme fonksiyonu
+    async function submitVote() {
+        if (myVotes.vote3 === null || myVotes.vote1 === null) {
+            alert('⚠️ Lütfen hem 3 puanlık hem de 1 puanlık seçiminizi yapın!');
+            return;
+        }
+        
+        // Yükleniyor göster
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('submit-btn').disabled = true;
+        
+        try {
+            console.log('📤 Oy gönderiliyor:', myVotes);
+            
+            // Bu örnekte sunucu olmadığı için local storage'a kaydediyoruz
+            // Gerçek uygulamada:
+            // const response = await fetch(`${API_URL}/api/vote`, {
+            //     method: 'POST',
+            //     headers: {'Content-Type': 'application/json'},
+            //     body: JSON.stringify(myVotes)
+            // });
+            
+            // Simüle edilmiş gecikme
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Local storage'a kaydet (simülasyon)
+            const currentScore1 = localStorage.getItem('score_1') ? parseInt(localStorage.getItem('score_1')) : 0;
+            const currentScore2 = localStorage.getItem('score_2') ? parseInt(localStorage.getItem('score_2')) : 0;
+            const currentScore3 = localStorage.getItem('score_3') ? parseInt(localStorage.getItem('score_3')) : 0;
+            const currentRemaining = localStorage.getItem('remaining_users') ? 
+                parseInt(localStorage.getItem('remaining_users')) : 3;
+            
+            // Puanları ekle
+            if (myVotes.vote3 === 1) localStorage.setItem('score_1', currentScore1 + 3);
+            if (myVotes.vote3 === 2) localStorage.setItem('score_2', currentScore2 + 3);
+            if (myVotes.vote3 === 3) localStorage.setItem('score_3', currentScore3 + 3);
+            
+            if (myVotes.vote1 === 1) localStorage.setItem('score_1', currentScore1 + 1);
+            if (myVotes.vote1 === 2) localStorage.setItem('score_2', currentScore2 + 1);
+            if (myVotes.vote1 === 3) localStorage.setItem('score_3', currentScore3 + 1);
+            
+            // Kalan katılımcıyı azalt
+            const newRemaining = Math.max(0, currentRemaining - 1);
+            localStorage.setItem('remaining_users', newRemaining);
+            
+            // Eğer 0 olduysa anketi bitir
+            if (newRemaining <= 0) {
+                localStorage.setItem('survey_active', 'false');
+            }
+            
+            // Başarı mesajı
+            const successMessage = document.getElementById('results-message');
+            successMessage.innerHTML = `<span style="color: #27ae60;">✅ Oyunuz kaydedildi! Kalan katılımcı: ${newRemaining}</span>`;
+            successMessage.style.display = 'flex';
+            
+            // Alert mesajı
+            alert(`🎉 Teşekkürler! Oyunuz kaydedildi.\nKalan katılımcı: ${newRemaining}`);
+            
+            // Seçimleri sıfırla
+            resetUserSelection();
+            
+            // Ekranı güncelle
+            await updateSurveyStatus();
+            
+        } catch (error) {
+            console.error('❌ Oy gönderilirken hata:', error);
+            alert('❌ Bir hata oluştu! Lütfen tekrar deneyin.');
+        } finally {
+            // Yükleniyor gizle
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+    
+    // Kullanıcı seçimlerini sıfırla
+    function resetUserSelection() {
+        myVotes = { vote3: null, vote1: null };
+        
+        // Görsel işaretlerini kaldır
+        document.querySelectorAll('.image-card').forEach(card => {
+            card.classList.remove('selected-gold', 'selected-silver');
+            const badge = card.querySelector('.selected-badge');
+            if (badge) badge.style.display = 'none';
+        });
+        
+        // Kalan oy hakkını sıfırla
+        document.getElementById('votes-left').textContent = 2;
+        
+        // Gönder butonunu devre dışı bırak
+        document.getElementById('submit-btn').disabled = true;
+        
+        console.log('🔄 Kullanıcı seçimleri sıfırlandı');
+    }
+    
+    // Anket bitince
+    function endSurvey(totalScores) {
+        console.log('🏁 Anket tamamlandı!');
+        
+        // Sonuçları göster
+        document.getElementById('total-results').style.display = 'block';
+        
+        // Tüm butonları devre dışı bırak
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        });
+        
+        document.getElementById('submit-btn').disabled = true;
+        document.getElementById('submit-btn').textContent = 'ANKET TAMAMLANDI';
+        
+        // Sonuç mesajı
+        const resultsMessage = document.getElementById('results-message');
+        resultsMessage.innerHTML = '<span style="color: #e74c3c; font-weight: bold;">🏆 ANKET TAMAMLANDI!</span>';
+        
+        // Kazananı belirle
+        if (totalScores) {
+            const scores = totalScores;
+            const winner = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            const winnerScore = scores[winner];
+            
+            // Eşitlik kontrolü
+            const winners = Object.keys(scores).filter(key => scores[key] === winnerScore);
+            if (winners.length > 1) {
+                resultsMessage.innerHTML += `<br><span style="color: #f39c12;">🏅 Eşitlik! Görsel ${winners.join(' ve ')} ${winnerScore} puan</span>`;
+            } else {
+                resultsMessage.innerHTML += `<br><span style="color: #f39c12;">🥇 Kazanan: Görsel ${winner} (${winnerScore} puan)</span>`;
+            }
+        }
+    }
+    
+    // Debug: Anketi sıfırlama fonksiyonu
+    window.resetSurvey = function() {
+        if (confirm('Anketi sıfırlamak istediğinize emin misiniz?\nTüm veriler silinecek.')) {
+            localStorage.clear();
+            resetUserSelection();
+            
+            // Ekranı güncelle
+            updateSurveyStatus();
+            
+            // Mesaj göster
+            document.getElementById('results-message').innerHTML = 
+                '<span style="color: #3498db;">🔄 Anket sıfırlandı!</span>';
+            
+            alert('✅ Anket sıfırlandı!');
+        }
+    };
+    
+    console.log('📝 Anket sistemi yüklendi. Komutlar:');
+    console.log('- resetSurvey(): Anketi sıfırlar');
+    console.log('- myVotes: Mevcut oyları gösterir');
+    </script>
 </body>
 </html>
